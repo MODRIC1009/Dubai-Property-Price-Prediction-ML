@@ -36,22 +36,24 @@ location = st.selectbox(
     sorted(location_columns)
 )
 
-# Create input dataframe
-input_data = pd.DataFrame({
-    "bedrooms": [bedrooms],
-    "bathrooms": [bathrooms],
-    "area_sqft": [area_sqft],
-    "property_type": [property_type],
-    "location": [location]
-})
+# Create base input with zeros
+input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 
-# Convert to dummies
-input_data = pd.get_dummies(input_data)
+# Set numeric features
+input_data["bedrooms"] = bedrooms
+input_data["bathrooms"] = bathrooms
+input_data["area_sqft"] = area_sqft
 
-# Align with training columns
-input_data = input_data.reindex(columns=model_columns, fill_value=0)
+# Set property type column
+prop_col = f"property_type_{property_type}"
+if prop_col in input_data.columns:
+    input_data[prop_col] = 1
 
-# Prediction
+# Set location column
+loc_col = f"location_{location}"
+if loc_col in input_data.columns:
+    input_data[loc_col] = 1
+
 if st.button("Predict Price"):
     prediction = model.predict(input_data)[0]
     st.success(f"Estimated Property Price: AED {prediction:,.0f}")
